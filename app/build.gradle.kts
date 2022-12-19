@@ -1,0 +1,43 @@
+plugins {
+    id("org.jetbrains.kotlin.jvm") version "1.7.22"
+    id("com.diffplug.spotless") version "6.12.0"
+
+    application
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("info.picocli:picocli:4.7.0")
+}
+
+testing {
+    suites {
+        @Suppress("UNUSED_VARIABLE")
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+            dependencies {
+                implementation("io.kotest:kotest-runner-junit5:5.5.0")
+                implementation("io.kotest:kotest-assertions-core:5.5.0")
+                implementation("io.kotest:kotest-property:5.5.0")
+            }
+        }
+    }
+}
+
+application {
+    mainClass.set("jp.henry.uke.mask.AppKt")
+}
+
+spotless {
+    kotlin {
+        ktlint()
+    }
+    kotlinGradle {
+        ktlint()
+    }
+}
