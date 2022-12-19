@@ -16,3 +16,8 @@ jobs:
         with:
           name: Gradle reports
           path: build/reports
+      - uses: actions/upload-artifact@v3
+        if: github.event_name == 'push'
+        with:
+          name: Executables
+          path: app/build/distributions
