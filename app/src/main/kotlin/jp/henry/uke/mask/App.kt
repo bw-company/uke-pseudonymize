@@ -1,6 +1,7 @@
 package jp.henry.uke.mask
 
 import picocli.CommandLine
+import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 import picocli.CommandLine.Parameters
 import java.io.File
@@ -13,6 +14,7 @@ import java.time.ZoneId
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
+@Command(name = "uke-anonymizer", mixinStandardHelpOptions = true, version = ["v2022.12.19"], description = ["UKEファイルを匿名化"])
 class App : Callable<Int> {
     @Parameters(index = "0", description = ["マスクするUKEファイル"])
     lateinit var input: File
