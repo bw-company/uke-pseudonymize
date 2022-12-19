@@ -15,7 +15,7 @@ jobs:
         if: always()
         with:
           name: Gradle reports
-          path: build/reports
+          path: app/build/reports
       - uses: actions/upload-artifact@v3
         if: github.event_name == 'push'
         with:
