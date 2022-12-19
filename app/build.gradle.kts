@@ -31,6 +31,7 @@ testing {
 
 application {
     mainClass.set("jp.henry.uke.mask.AppKt")
+    applicationName = "uke-anonymizer"
 }
 
 spotless {
