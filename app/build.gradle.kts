@@ -12,7 +12,7 @@ repositories {
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("info.picocli:picocli:4.7.0")
+    implementation("info.picocli:picocli:4.7.1")
 }
 
 testing {
