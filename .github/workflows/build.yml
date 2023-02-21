@@ -11,7 +11,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test build --no-daemon
+          arguments: build --no-daemon
       - uses: actions/upload-artifact@v3
         if: always()
         with:
