@@ -1,7 +1,6 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.8.10"
-    id("com.diffplug.spotless") version "6.15.0"
-
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.spotless)
     application
 }
 
@@ -12,7 +11,7 @@ repositories {
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("info.picocli:picocli:4.7.1")
+    implementation(libs.picocli)
 }
 
 testing {
@@ -21,9 +20,9 @@ testing {
         val test by getting(JvmTestSuite::class) {
             useJUnitJupiter()
             dependencies {
-                implementation("io.kotest:kotest-runner-junit5:5.5.5")
-                implementation("io.kotest:kotest-assertions-core:5.5.5")
-                implementation("io.kotest:kotest-property:5.5.5")
+                implementation(libs.kotest.runner.junit5)
+                implementation(libs.kotest.assertions.core)
+                implementation(libs.kotest.property)
             }
         }
     }
