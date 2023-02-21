@@ -22,7 +22,7 @@ testing {
             useJUnitJupiter()
             dependencies {
                 implementation("io.kotest:kotest-runner-junit5:5.5.5")
-                implementation("io.kotest:kotest-assertions-core:5.5.4")
+                implementation("io.kotest:kotest-assertions-core:5.5.5")
                 implementation("io.kotest:kotest-property:5.5.5")
             }
         }
