@@ -9,4 +9,4 @@ picocli = { module = "info.picocli:picocli", version = "4.7.1" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version = "1.8.10" }
-spotless = { id = "com.diffplug.spotless", version = "6.15.0" }
+spotless = { id = "com.diffplug.spotless", version = "6.16.0" }
