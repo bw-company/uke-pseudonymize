@@ -43,7 +43,12 @@ class MaskingEngine(seed: Int, private val clock: Clock) {
         // 当月の1日時点での年齢を表示する
         val base = LocalDate.ofInstant(clock.instant(), clock.zone).withDayOfMonth(1)
         // 誕生日の前日に年齢を加算する
-        return "${maskName("患者名", raw)}（${ChronoUnit.YEARS.between(birthDay.minusDays(1), base)}歳）"
+        val age = ChronoUnit.YEARS.between(birthDay.minusDays(1), base)
+        return if (age <= 6) {
+            "${maskName("患者名", raw)}（${age}歳, 未就学児）"
+        } else {
+            "${maskName("患者名", raw)}（${age}歳）"
+        }
     }
 
     /**
