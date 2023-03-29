@@ -27,8 +27,7 @@ class MaskingEngine(seed: Int, private val clock: Clock) {
             when (it.index) {
                 4 -> {
                     val birthDay = LocalDate.parse(split[6], DateTimeFormatter.ofPattern("yyyyMMdd"))
-                    val today = LocalDate.ofInstant(clock.instant(), clock.zone)
-                    "${maskName("患者名", it.value)}（${ChronoUnit.YEARS.between(birthDay, today)}歳）"
+                    maskPatientName(it.value, birthDay)
                 }
 //                誕生日は７５歳に到達した日の確認が必要となるため、そのままの値で使用
 //                6 -> maskDate(it.value)
@@ -38,6 +37,11 @@ class MaskingEngine(seed: Int, private val clock: Clock) {
                 else -> it.value
             }
         }
+    }
+
+    fun maskPatientName(raw: String, birthDay: LocalDate): String {
+        val today = LocalDate.ofInstant(clock.instant(), clock.zone)
+        return "${maskName("患者名", raw)}（${ChronoUnit.YEARS.between(birthDay, today)}歳）"
     }
 
     /**
