@@ -44,6 +44,9 @@ class MaskingEngine(seed: Int) {
         }
     }
 
+    /**
+     * @return 月末の日付
+     */
     private fun LocalDate.atEndOfMonth(): LocalDate =
         this.withDayOfMonth(this.month.length(this.isLeapYear))
 
@@ -51,7 +54,7 @@ class MaskingEngine(seed: Int) {
         // 当月の1日時点での年齢を表示する
         val base = medicalTreatmentDay.withDayOfMonth(1)
         // 誕生日の前日に年齢を加算する
-        val age = ChronoUnit.YEARS.between(birthDay.minusDays(1), base)
+        val age = computeAge(birthDay, base)
         val ageAtEndOfLastMonth = ChronoUnit.YEARS.between(birthDay.minusDays(1), base.minusDays(1))
         val ageAtEndOfThisMonth = ChronoUnit.YEARS.between(birthDay.minusDays(1), base.atEndOfMonth())
         return if (age <= 6L) {
@@ -123,4 +126,15 @@ class MaskingEngine(seed: Int) {
     }
 
     private fun maskTelNum(text: String) = "000-0000-0000"
+
+    companion object {
+        /**
+         * @see <a href="https://elaws.e-gov.go.jp/document?lawid=135AC1000000050">年齢計算ニ関スル法律</a>
+         * @see <a href="http://itpro.nikkeibp.co.jp/article/Watcher/20070822/280097/">佐野裕のサーバ管理者日記</a>
+         */
+        fun computeAge(birthDay: LocalDate, today: LocalDate): Int {
+            val format = DateTimeFormatter.ofPattern("yyyyMMdd")
+            return (today.format(format).toInt() - birthDay.format(format).toInt()) / 10_000
+        }
+    }
 }

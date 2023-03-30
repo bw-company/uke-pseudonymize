@@ -1,16 +1,38 @@
 package jp.henry.uke.mask
 
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.localDate
 import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
+import jp.henry.uke.mask.MaskingEngine.Companion.computeAge
 import java.time.LocalDate
 
 class MaskEngineSpec : DescribeSpec({
+    describe("computeAge") {
+        describe("3月1日に生まれた子供") {
+            val birthDay = LocalDate.of(2014, 3, 1)
+            it("翌年の3月1日に1歳になる") {
+                computeAge(birthDay, LocalDate.of(2015, 2, 28)) shouldBe 0
+                computeAge(birthDay, LocalDate.of(2015, 3, 1)) shouldBe 1
+            }
+        }
+        describe("2月29日に生まれた子供") {
+            val birthDay = LocalDate.of(2016, 2, 29)
+            it("翌年の2月27日はまだ0歳のまま") {
+                computeAge(birthDay, LocalDate.of(2017, 2, 27)) shouldBe 0
+            }
+            it("翌年の2月28日に1歳になる") {
+                computeAge(birthDay, LocalDate.of(2017, 2, 28)) shouldBe 1
+            }
+        }
+    }
     describe("maskNumber") {
         it("generates number with given length") {
             checkAll(Arb.int(), Arb.string(), Arb.int(1, 10)) { seed, text, length ->
@@ -83,20 +105,72 @@ class MaskEngineSpec : DescribeSpec({
             }
         }
         describe("未就学児判定") {
-            it("0-6歳ならば未就学児であることを表示") {
-                checkAll(Arb.int(0, 6)) {
+            it("0-5歳ならば未就学児であることを表示") {
+                checkAll(Arb.int(0, 5)) {
                     val birthDay = LocalDate.of(2000, 1, 2)
                     val thisMonth = LocalDate.of(2000 + it, 1, 2)
 
-                    MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain ", 未就学児）"
+                    MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain "未就学児"
+                }
+            }
+            describe("4月2日～3月31日の間に6歳に到達してから、次の3月31日を迎えるまで") {
+                it("未就学児であることを表示") {
+                    // うるう年をテストするために2016年2月29日を含むケースを用いる
+                    checkAll(Arb.localDate(LocalDate.of(2015, 4, 3), LocalDate.of(2016, 4, 1))) { birthDay ->
+                        // 6歳になる日から確認を開始
+                        var today = if (birthDay == LocalDate.of(2016, 2, 29)) {
+                            birthDay.plusYears(6).plusDays(1)
+                        } else {
+                            birthDay.plusYears(6)
+                        }
+                        withClue("$birthDay に生まれた子供は $today から6歳になる") {
+                            computeAge(birthDay, today) shouldBe 6
+                        }
+                        val engine = MaskingEngine(0)
+                        do {
+                            engine.maskPatientName("患者", today, birthDay) shouldContain "未就学児"
+                            today = today.plusDays(1)
+                        } while (today <= LocalDate.of(2022, 3, 31))
+                    }
+                    // うるう年をテストするために2020年2月29日に6歳になるケースも用いる
+                    checkAll(Arb.localDate(LocalDate.of(2013, 4, 3), LocalDate.of(2014, 4, 1))) { birthDay ->
+                        // 6歳になる日から確認を開始
+                        var today = birthDay.plusYears(6)
+                        withClue("$birthDay に生まれた子供は $today には6歳になっている") {
+                            computeAge(birthDay, today) shouldBe 6
+                        }
+                        val engine = MaskingEngine(0)
+                        do {
+                            engine.maskPatientName("患者", today, birthDay) shouldContain "未就学児"
+                            today = today.plusDays(1)
+                        } while (today <= LocalDate.of(2020, 3, 31))
+                    }
+                }
+            }
+            describe("3月31日から7歳の誕生日を迎えるまで") {
+                it("未就学児であることを表示しない") {
+                    checkAll(Arb.localDate(LocalDate.of(2015, 4, 3), LocalDate.of(2016, 4, 1))) { birthDay ->
+                        var today = LocalDate.of(2022, 3, 31)
+                        withClue("$birthDay に生まれた子供は $today にはまだ6歳である") {
+                            computeAge(birthDay, today) shouldBe 6
+                        }
+                        val engine = MaskingEngine(0)
+                        do {
+                            engine.maskPatientName("患者", today, birthDay) shouldNotContain "未就学児"
+                            today = today.plusDays(1)
+                        } while (computeAge(birthDay, today) == 6)
+                    }
                 }
             }
             it("7歳以上であれば表示しない") {
                 checkAll(Arb.int(7, 120)) {
-                    val birthDay = LocalDate.of(2000, 1, 2)
-                    val thisMonth = LocalDate.of(2000 + it, 1, 1)
+                    val birthDay = LocalDate.of(2000, 1, 1)
+                    val today = LocalDate.of(2000 + it, 1, 1)
+                    withClue("$birthDay に生まれた子供は $today にはもう7歳以上である") {
+                        computeAge(birthDay, today) shouldBeGreaterThanOrEqual 7
+                    }
 
-                    MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldNotContain ", 未就学児）"
+                    MaskingEngine(0).maskPatientName("患者", today, birthDay) shouldNotContain ", 未就学児）"
                 }
             }
         }
