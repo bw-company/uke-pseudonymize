@@ -41,12 +41,12 @@ class MaskEngineSpec : DescribeSpec({
 
                 val theDayBefore = Clock.fixed(Instant.parse("2021-01-30T09:00:00.00Z"), zoneId)
                 val endOfTheLastMonth = Clock.fixed(Instant.parse("2021-01-31T09:00:00.00Z"), zoneId)
-                val nextBirthDay = Clock.fixed(Instant.parse("2021-02-01T09:00:00.00Z"), zoneId)
+                val beginningOfThisMonth = Clock.fixed(Instant.parse("2021-02-01T09:00:00.00Z"), zoneId)
 
                 MaskingEngine(0, theDayBefore).maskPatientName("患者", birthDay) shouldContain "（0歳"
                 // この時点では1歳だが、その月の1日での年齢を表示するため変更なし
                 MaskingEngine(0, endOfTheLastMonth).maskPatientName("患者", birthDay) shouldContain "（0歳"
-                MaskingEngine(0, nextBirthDay).maskPatientName("患者", birthDay) shouldContain "（1歳"
+                MaskingEngine(0, beginningOfThisMonth).maskPatientName("患者", birthDay) shouldContain "（1歳"
             }
             it("誕生日が2日の場合") {
                 val birthDay = LocalDate.of(2020, 2, 2)
@@ -58,7 +58,7 @@ class MaskEngineSpec : DescribeSpec({
 
                 MaskingEngine(0, endOfTheLastMonth).maskPatientName("患者", birthDay) shouldContain "（0歳"
 
-                // この時点で1歳となり、その月の1日での年齢を表示するため1際と表示
+                // この時点で1歳となり、その月の1日での年齢を表示するため1歳と表示
                 MaskingEngine(0, beginningOfThisMonth).maskPatientName("患者", birthDay) shouldContain "（1歳"
 
                 MaskingEngine(0, endOfTheMonth).maskPatientName("患者", birthDay) shouldContain "（1歳"
