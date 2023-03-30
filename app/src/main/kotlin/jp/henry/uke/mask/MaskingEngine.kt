@@ -1,12 +1,11 @@
 package jp.henry.uke.mask
 
-import java.time.Clock
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
-class MaskingEngine(seed: Int, private val clock: Clock) {
+class MaskingEngine(seed: Int) {
     private val random = Random(seed)
     private val names = HashMap<String, HashMap<String, String>>()
     private val numbers = HashMap<Int, HashMap<String, String>>()
@@ -27,7 +26,13 @@ class MaskingEngine(seed: Int, private val clock: Clock) {
             when (it.index) {
                 4 -> {
                     val birthDay = LocalDate.parse(split[6], DateTimeFormatter.ofPattern("yyyyMMdd"))
-                    maskPatientName(it.value, birthDay)
+                    val medicalTreatmentDay = split[3] // "yyyyMM"形式の診療年月
+                    val base = LocalDate.of(
+                        medicalTreatmentDay.substring(0..3).toInt(),
+                        medicalTreatmentDay.substring(4..5).toInt(),
+                        1,
+                    )
+                    maskPatientName(it.value, base, birthDay)
                 }
 //                誕生日は７５歳に到達した日の確認が必要となるため、そのままの値で使用
 //                6 -> maskDate(it.value)
@@ -39,13 +44,21 @@ class MaskingEngine(seed: Int, private val clock: Clock) {
         }
     }
 
-    fun maskPatientName(raw: String, birthDay: LocalDate): String {
+    private fun LocalDate.atEndOfMonth(): LocalDate =
+        this.withDayOfMonth(this.month.length(this.isLeapYear))
+
+    fun maskPatientName(raw: String, medicalTreatmentDay: LocalDate, birthDay: LocalDate): String {
         // 当月の1日時点での年齢を表示する
-        val base = LocalDate.ofInstant(clock.instant(), clock.zone).withDayOfMonth(1)
+        val base = medicalTreatmentDay.withDayOfMonth(1)
         // 誕生日の前日に年齢を加算する
         val age = ChronoUnit.YEARS.between(birthDay.minusDays(1), base)
-        return if (age <= 6) {
+        val ageAtEndOfLastMonth = ChronoUnit.YEARS.between(birthDay.minusDays(1), base.minusDays(1))
+        val ageAtEndOfThisMonth = ChronoUnit.YEARS.between(birthDay.minusDays(1), base.atEndOfMonth())
+        return if (age <= 6L) {
             "${maskName("患者名", raw)}（${age}歳, 未就学児）"
+        } else if (ageAtEndOfThisMonth == 75L && ageAtEndOfLastMonth == 74L) {
+            // 75歳の誕生日当日から後期高齢に移行し、その月の自己負担額が半額となる制度のため、これを表示
+            "${maskName("患者名", raw)}（${age}歳, 75歳到達月）"
         } else {
             "${maskName("患者名", raw)}（${age}歳）"
         }
