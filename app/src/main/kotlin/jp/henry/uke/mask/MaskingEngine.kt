@@ -1,8 +1,8 @@
 package jp.henry.uke.mask
 
 import java.time.LocalDate
+import java.time.Period
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
 class MaskingEngine(seed: Int) {
@@ -53,13 +53,19 @@ class MaskingEngine(seed: Int) {
     fun maskPatientName(raw: String, medicalTreatmentDay: LocalDate, birthDay: LocalDate): String {
         // 当月の1日時点での年齢を表示する
         val base = medicalTreatmentDay.withDayOfMonth(1)
-        // 誕生日の前日に年齢を加算する
         val age = computeAge(birthDay, base)
-        val ageAtEndOfLastMonth = ChronoUnit.YEARS.between(birthDay.minusDays(1), base.minusDays(1))
-        val ageAtEndOfThisMonth = ChronoUnit.YEARS.between(birthDay.minusDays(1), base.atEndOfMonth())
-        return if (age <= 6L) {
-            "${maskName("患者名", raw)}（${age}歳, 未就学児）"
-        } else if (ageAtEndOfThisMonth == 75L && ageAtEndOfLastMonth == 74L) {
+        var termStartDate = LocalDate.of(medicalTreatmentDay.year, 4, 1)
+        if (!base.isBefore(termStartDate)) {
+            termStartDate = termStartDate.plusYears(1)
+        }
+
+        if (computeAge(birthDay, termStartDate) <= 6) {
+            return "${maskName("患者名", raw)}（${age}歳, 未就学児）"
+        }
+
+        val ageAtEndOfLastMonth = computeAge(birthDay, base.minusDays(1))
+        val ageAtEndOfThisMonth = computeAge(birthDay, base.atEndOfMonth())
+        return if (ageAtEndOfThisMonth == 75 && ageAtEndOfLastMonth == 74) {
             // 75歳の誕生日当日から後期高齢に移行し、その月の自己負担額が半額となる制度のため、これを表示
             "${maskName("患者名", raw)}（${age}歳, 75歳到達月）"
         } else {
@@ -128,13 +134,7 @@ class MaskingEngine(seed: Int) {
     private fun maskTelNum(text: String) = "000-0000-0000"
 
     companion object {
-        /**
-         * @see <a href="https://elaws.e-gov.go.jp/document?lawid=135AC1000000050">年齢計算ニ関スル法律</a>
-         * @see <a href="http://itpro.nikkeibp.co.jp/article/Watcher/20070822/280097/">佐野裕のサーバ管理者日記</a>
-         */
-        fun computeAge(birthDay: LocalDate, today: LocalDate): Int {
-            val format = DateTimeFormatter.ofPattern("yyyyMMdd")
-            return (today.format(format).toInt() - birthDay.format(format).toInt()) / 10_000
-        }
+        fun computeAge(birthDay: LocalDate, today: LocalDate): Int =
+            Period.between(birthDay, today).years
     }
 }
