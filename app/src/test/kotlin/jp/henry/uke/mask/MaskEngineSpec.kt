@@ -167,7 +167,7 @@ class MaskEngineSpec : DescribeSpec({
                                 computeAge(birthDay, today) shouldBeGreaterThanOrEqual 7
                             }
 
-                            MaskingEngine(0).maskPatientName("患者", today, birthDay) shouldNotContain ", 未就学児）"
+                            MaskingEngine(0).maskPatientName("患者", today, birthDay) shouldNotContain "未就学児"
                         }
                     }
                 }
@@ -179,7 +179,7 @@ class MaskEngineSpec : DescribeSpec({
                     val birthDay = LocalDate.of(1955, 1, 2)
                     val thisMonth = LocalDate.of(2030, 1, it)
 
-                    MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain ", 75歳到達月"
+                    MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain "75歳到達月"
                 }
             }
             it("月末時点で74歳11ヶ月あるいは75歳1ヶ月であれば表示しない") {
@@ -187,15 +187,19 @@ class MaskEngineSpec : DescribeSpec({
                 val before = LocalDate.of(2029, 12, 31)
                 val after = LocalDate.of(2030, 2, 1)
 
-                MaskingEngine(0).maskPatientName("患者", before, birthDay) shouldNotContain ", 75歳到達月"
-                MaskingEngine(0).maskPatientName("患者", after, birthDay) shouldNotContain ", 75歳到達月"
+                MaskingEngine(0).maskPatientName("患者", before, birthDay) shouldNotContain "75歳到達月"
+                MaskingEngine(0).maskPatientName("患者", after, birthDay) shouldNotContain "75歳到達月"
             }
-            it("当月1日が誕生日の場合は75歳到達月特例にあてはまらないため到達月とは表示しない") {
-                checkAll(Arb.int(1, 28)) {
-                    val birthDay = LocalDate.of(1955, 2, 1)
-                    val thisMonth = LocalDate.of(2030, 2, it)
-
-                    MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldNotContain ", 75歳到達月"
+            context("当月1日が誕生日の場合") {
+                it("75歳到達月特例にあてはまらないことを表示する") {
+                    checkAll(Arb.int(1, 12)) { month ->
+                        val birthDay = LocalDate.of(1955, month, 1)
+                        checkAll(Arb.int(1, birthDay.lengthOfMonth())) { day ->
+                            val thisMonth = LocalDate.of(2030, month, day)
+                            // 14.5文字
+                            MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain "1日生まれの為75歳到達月対象外"
+                        }
+                    }
                 }
             }
         }

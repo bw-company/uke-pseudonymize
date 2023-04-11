@@ -65,9 +65,13 @@ class MaskingEngine(seed: Int) {
 
         val ageAtEndOfLastMonth = computeAge(birthDay, base.minusDays(1))
         val ageAtEndOfThisMonth = computeAge(birthDay, base.atEndOfMonth())
-        return if (birthDay.dayOfMonth != 1 && ageAtEndOfThisMonth == 75 && ageAtEndOfLastMonth == 74) {
-            // 75歳の誕生日当日から後期高齢に移行し、その月の自己負担額が半額となる制度のため、これを表示
-            "${maskName("患者名", raw)}（${age}歳, 75歳到達月）"
+        return if (ageAtEndOfThisMonth == 75 && ageAtEndOfLastMonth == 74) {
+            if (birthDay.dayOfMonth == 1) {
+                "${maskName("患者名", raw)}（${age}歳, 1日生まれの為75歳到達月対象外）"
+            } else {
+                // 75歳の誕生日当日から後期高齢に移行し、その月の自己負担額が半額となる制度のため、これを表示
+                "${maskName("患者名", raw)}（${age}歳, 75歳到達月）"
+            }
         } else {
             "${maskName("患者名", raw)}（${age}歳）"
         }
