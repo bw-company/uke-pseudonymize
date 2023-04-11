@@ -14,7 +14,7 @@ import io.kotest.property.checkAll
 import jp.henry.uke.mask.MaskingEngine.Companion.computeAge
 import java.time.LocalDate
 
-class MaskEngineSpec : DescribeSpec({
+class MaskingEngineSpec : DescribeSpec({
     describe("computeAge") {
         context("3月1日に生まれた子供") {
             val birthDay = LocalDate.of(2014, 3, 1)
