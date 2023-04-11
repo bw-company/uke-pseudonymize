@@ -60,20 +60,20 @@ class MaskingEngine(seed: Int) {
         }
 
         if (computeAge(birthDay, termStartDate) <= 6) {
-            return "${maskName("患者名", raw)}（${age}歳, 未就学児）"
+            return "${maskName("患者", raw)}(${age}歳,未就学児)"
         }
 
         val ageAtEndOfLastMonth = computeAge(birthDay, base.minusDays(1))
         val ageAtEndOfThisMonth = computeAge(birthDay, base.atEndOfMonth())
         return if (ageAtEndOfThisMonth == 75 && ageAtEndOfLastMonth == 74) {
-            if (birthDay.dayOfMonth == 1) {
-                "${maskName("患者名", raw)}（${age}歳, 1日生まれの為75歳到達月対象外）"
-            } else {
+            if (birthDay.dayOfMonth != 1) {
                 // 75歳の誕生日当日から後期高齢に移行し、その月の自己負担額が半額となる制度のため、これを表示
-                "${maskName("患者名", raw)}（${age}歳, 75歳到達月）"
+                "${maskName("患者", raw)}(${age}歳,75歳到達月)"
+            } else {
+                "${maskName("患者", raw)}(${age}歳,75歳到達月特例対象外)"
             }
         } else {
-            "${maskName("患者名", raw)}（${age}歳）"
+            "${maskName("患者", raw)}(${age}歳)"
         }
     }
 
@@ -115,7 +115,7 @@ class MaskingEngine(seed: Int) {
         line.split(",").withIndex().joinToString(",") {
             when (it.index) {
                 4 -> maskNumber(it.value, 7)
-                6 -> maskName("医療機関名", it.value)
+                6 -> maskName("医療機関", it.value)
                 9 -> maskTelNum(it.value)
                 else -> it.value
             }
@@ -124,7 +124,8 @@ class MaskingEngine(seed: Int) {
     fun maskName(prefix: String, name: String) = names.getOrPut(prefix) {
         HashMap()
     }.getOrPut(name) {
-        "$prefix${random.nextInt(Integer.MAX_VALUE)}"
+        // 長すぎると患者名が全角20文字を超えるため6桁に抑える
+        "$prefix${random.nextInt(999_999)}"
     }
 
     fun maskNumber(text: String, length: Int): String = numbers.getOrPut(length) {

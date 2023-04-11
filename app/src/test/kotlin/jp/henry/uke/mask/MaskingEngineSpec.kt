@@ -3,6 +3,7 @@ package jp.henry.uke.mask
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -12,6 +13,7 @@ import io.kotest.property.arbitrary.localDate
 import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 import jp.henry.uke.mask.MaskingEngine.Companion.computeAge
+import java.nio.charset.Charset
 import java.time.LocalDate
 
 class MaskingEngineSpec : DescribeSpec({
@@ -64,9 +66,9 @@ class MaskingEngineSpec : DescribeSpec({
                 val endOfTheLastMonth = LocalDate.of(2021, 1, 31)
                 val beginningOfThisMonth = LocalDate.of(2021, 2, 1)
 
-                MaskingEngine(0).maskPatientName("患者", theDayBefore, birthDay) shouldContain "（0歳"
-                MaskingEngine(0).maskPatientName("患者", endOfTheLastMonth, birthDay) shouldContain "（0歳"
-                MaskingEngine(0).maskPatientName("患者", beginningOfThisMonth, birthDay) shouldContain "（1歳"
+                MaskingEngine(0).maskPatientName("患者", theDayBefore, birthDay) shouldContain "(0歳"
+                MaskingEngine(0).maskPatientName("患者", endOfTheLastMonth, birthDay) shouldContain "(0歳"
+                MaskingEngine(0).maskPatientName("患者", beginningOfThisMonth, birthDay) shouldContain "(1歳"
             }
             it("誕生日がそれ以外の場合") {
                 checkAll(Arb.int(2, 31)) {
@@ -76,12 +78,12 @@ class MaskingEngineSpec : DescribeSpec({
                     val endOfTheMonth = LocalDate.of(2020, 3, 31)
                     val beginningOfTheNextMonth = LocalDate.of(2020, 4, 1)
 
-                    MaskingEngine(0).maskPatientName("患者", oneDayBefore, birthDay) shouldContain "（0歳"
-                    MaskingEngine(0).maskPatientName("患者", today, birthDay) shouldContain "（0歳"
-                    MaskingEngine(0).maskPatientName("患者", endOfTheMonth, birthDay) shouldContain "（0歳"
+                    MaskingEngine(0).maskPatientName("患者", oneDayBefore, birthDay) shouldContain "(0歳"
+                    MaskingEngine(0).maskPatientName("患者", today, birthDay) shouldContain "(0歳"
+                    MaskingEngine(0).maskPatientName("患者", endOfTheMonth, birthDay) shouldContain "(0歳"
 
                     // 次の月から年齢が加算される
-                    MaskingEngine(0).maskPatientName("患者", beginningOfTheNextMonth, birthDay) shouldContain "（1歳"
+                    MaskingEngine(0).maskPatientName("患者", beginningOfTheNextMonth, birthDay) shouldContain "(1歳"
                 }
             }
         }
@@ -150,7 +152,6 @@ class MaskingEngineSpec : DescribeSpec({
                                 }
                                 val engine = MaskingEngine(0)
                                 do {
-                                    println("${birthDay}生まれの患者は${today}において${computeAge(birthDay, today)}歳")
                                     engine.maskPatientName("患者", today, birthDay) shouldNotContain "未就学児"
                                     today = today.plusDays(1)
                                 } while (computeAge(birthDay, today) == 6)
@@ -196,10 +197,28 @@ class MaskingEngineSpec : DescribeSpec({
                         val birthDay = LocalDate.of(1955, month, 1)
                         checkAll(Arb.int(1, birthDay.lengthOfMonth())) { day ->
                             val thisMonth = LocalDate.of(2030, month, day)
-                            // 14.5文字
-                            MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain "1日生まれの為75歳到達月対象外"
+                            MaskingEngine(0).maskPatientName("患者", thisMonth, birthDay) shouldContain "75歳到達月特例対象外"
                         }
                     }
+                }
+            }
+        }
+
+        /**
+         * Shift-JISにおける文字数を計算する。全角は2文字、半角は1文字として数える。
+         */
+        fun String.countSjisChars(): Int {
+            val charset = Charset.forName("SJIS")
+            return this.toByteArray(charset).size
+        }
+        it("半角で40文字、全角で20文字を超えない文字列を生成する") {
+            checkAll(Arb.int(), Arb.string(), Arb.int(1, 80)) { seed, name, age ->
+                val birthDay = LocalDate.of(1930, 1, 1)
+                val today = LocalDate.of(1930 + age, 1, 1)
+                val maskedName = MaskingEngine(seed).maskPatientName(name, today, birthDay)
+                val sjisLength = maskedName.countSjisChars()
+                withClue("生成された文字列（$maskedName）の長さが半角で40文字を超えるべきではないが $sjisLength 文字となった") {
+                    sjisLength shouldBeLessThanOrEqual 40
                 }
             }
         }
