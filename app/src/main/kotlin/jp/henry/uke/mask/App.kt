@@ -9,8 +9,6 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.SecureRandom
-import java.time.Clock
-import java.time.ZoneId
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
@@ -32,7 +30,7 @@ class App : Callable<Int> {
         }
 
         println("マスク処理を開始します（シード値 $seed）……")
-        val engine = MaskingEngine(seed, Clock.system(ZoneId.of("Asia/Tokyo")))
+        val engine = MaskingEngine(seed)
 
         Files.newBufferedWriter(output, CHARSET).use { writer ->
             Files.newBufferedReader(input.toPath(), CHARSET).lines().map {
