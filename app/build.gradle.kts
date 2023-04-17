@@ -1,7 +1,10 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.spotless)
     application
+    alias(libs.plugins.jlink)
 }
 
 repositories {
@@ -30,6 +33,7 @@ testing {
 
 application {
     mainClass.set("jp.henry.uke.mask.AppKt")
+    mainModule.set("jp.henry.uke.mask")
     applicationName = "uke-anonymizer"
 }
 
@@ -39,5 +43,15 @@ spotless {
     }
     kotlinGradle {
         ktlint()
+    }
+}
+
+val compileKotlin: KotlinCompile by tasks
+val compileJava: JavaCompile by tasks
+compileJava.destinationDirectory.set(compileKotlin.destinationDirectory)
+
+jlink {
+    launcher {
+        name = "uke-anonymizer"
     }
 }
