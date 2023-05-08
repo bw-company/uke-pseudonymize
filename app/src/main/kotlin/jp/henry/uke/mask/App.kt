@@ -12,7 +12,7 @@ import java.security.SecureRandom
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
-@Command(name = "uke-anonymizer", mixinStandardHelpOptions = true, version = ["v2022.12.19"], description = ["UKEファイルを匿名化"])
+@Command(name = "uke-pseudonymize", mixinStandardHelpOptions = true, version = ["v2022.12.19"], description = ["UKEファイルを匿名化"])
 class App : Callable<Int> {
     @Parameters(index = "0", description = ["マスクするUKEファイル"])
     lateinit var input: File
