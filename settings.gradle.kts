@@ -1,2 +1,2 @@
-rootProject.name = "uke-anonymizer"
+rootProject.name = "uke-pseudonymize"
 include("app")

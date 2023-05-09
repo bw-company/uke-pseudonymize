@@ -1,6 +1,6 @@
-# uke-anonymizer
+# uke-pseudonymize
 
-[![.github/workflows/build.yml](https://github.com/bw-company/uke-anonymizer/actions/workflows/build.yml/badge.svg)](https://github.com/bw-company/uke-anonymizer/actions/workflows/build.yml)
+[![.github/workflows/build.yml](https://github.com/bw-company/uke-pseudonymize/actions/workflows/build.yml/badge.svg)](https://github.com/bw-company/uke-pseudonymize/actions/workflows/build.yml)
 
 UKEファイルを仮名加工情報に変換するツールです。
 
