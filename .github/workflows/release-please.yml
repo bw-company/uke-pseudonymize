@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
@@ -17,7 +17,6 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: google-github-actions/release-please-action@v3
-        id: release
         with:
           release-type: java
           package-name: uke-pseudonymize
@@ -39,3 +38,8 @@ jobs:
           "${{ needs.release-please.outputs.tag_name }}"
           app/build/distributions/uke-pseudonymize.tar
           app/build/distributions/uke-pseudonymize.zip
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Gradle reports
+          path: app/build/reports
