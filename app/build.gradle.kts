@@ -44,9 +44,11 @@ spotless {
 
 tasks {
     val processVersionFile by registering(WriteProperties::class) {
-        destinationFile.fileProvider(sourceSets.named("main").map {
-            it.output.resourcesDir!!.resolve("metadata.properties")
-        })
+        destinationFile.fileProvider(
+            sourceSets.named("main").map {
+                it.output.resourcesDir!!.resolve("metadata.properties")
+            },
+        )
 
         property("version", project.version)
     }
