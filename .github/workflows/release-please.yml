@@ -1,0 +1,45 @@
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        with:
+          release-type: java
+          package-name: uke-pseudonymize
+          include-v-in-tag: false
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build --no-daemon -Pversion="${{ steps.release.outputs.tag_name }}"
+      - name: Upload distributions to GitHub Releases
+        run: >
+          gh release upload
+          "${{ needs.release-please.outputs.tag_name }}"
+          app/build/distributions/uke-pseudonymize.tar
+          app/build/distributions/uke-pseudonymize.zip
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Gradle reports
+          path: app/build/reports

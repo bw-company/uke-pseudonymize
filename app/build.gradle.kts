@@ -41,3 +41,18 @@ spotless {
         ktlint()
     }
 }
+
+tasks {
+    val processVersionFile by registering(WriteProperties::class) {
+        destinationFile.fileProvider(
+            sourceSets.named("main").map {
+                it.output.resourcesDir!!.resolve("metadata.properties")
+            },
+        )
+
+        property("version", project.version)
+    }
+    named("processResources") {
+        dependsOn(processVersionFile)
+    }
+}
