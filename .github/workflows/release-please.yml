@@ -38,7 +38,7 @@ jobs:
           "${{ needs.release-please.outputs.tag_name }}"
           app/build/distributions/uke-pseudonymize.tar
           app/build/distributions/uke-pseudonymize.zip
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: Gradle reports
