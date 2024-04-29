@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: build --no-daemon -Pversion="${{ steps.release.outputs.tag_name }}"
       - name: Upload distributions to GitHub Releases
