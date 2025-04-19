@@ -5,7 +5,7 @@ kotest = "5.9.1"
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
-picocli = { module = "info.picocli:picocli", version = "4.7.6" }
+picocli = { module = "info.picocli:picocli", version = "4.7.7" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version = "2.1.20" }
