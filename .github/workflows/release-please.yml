@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew build --no-daemon -Pversion="${{ steps.release.outputs.tag_name }}"
       - name: Upload distributions to GitHub Releases
         run: >
