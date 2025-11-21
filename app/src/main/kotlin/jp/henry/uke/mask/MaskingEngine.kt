@@ -5,7 +5,9 @@ import java.time.Period
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
-class MaskingEngine(seed: Int) {
+class MaskingEngine(
+    seed: Int,
+) {
     private val random = Random(seed)
     private val names = HashMap<String, HashMap<String, String>>()
     private val numbers = HashMap<Int, HashMap<String, String>>()
@@ -128,24 +130,26 @@ class MaskingEngine(seed: Int) {
     fun maskName(
         prefix: String,
         name: String,
-    ) = names.getOrPut(prefix) {
-        HashMap()
-    }.getOrPut(name) {
-        // 長すぎると患者名が全角20文字を超えるため6桁に抑える
-        "$prefix${random.nextInt(999_999)}"
-    }
+    ) = names
+        .getOrPut(prefix) {
+            HashMap()
+        }.getOrPut(name) {
+            // 長すぎると患者名が全角20文字を超えるため6桁に抑える
+            "$prefix${random.nextInt(999_999)}"
+        }
 
     fun maskNumber(
         text: String,
         length: Int,
     ): String =
-        numbers.getOrPut(length) {
-            HashMap()
-        }.getOrPut(text) {
-            (1..length).joinToString("") {
-                random.nextInt(10).toString()
+        numbers
+            .getOrPut(length) {
+                HashMap()
+            }.getOrPut(text) {
+                (1..length).joinToString("") {
+                    random.nextInt(10).toString()
+                }
             }
-        }
 
     private fun maskTelNum(text: String) = "000-0000-0000"
 
