@@ -7,17 +7,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build --no-daemon
-      - uses: actions/upload-artifact@v3
+      - uses: actions/checkout@v6
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew build --no-daemon
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: Gradle reports
           path: app/build/reports
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v5
         if: github.event_name == 'push'
         with:
           name: Executables
