@@ -12,7 +12,12 @@ import java.security.SecureRandom
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
-@Command(name = "uke-pseudonymize", mixinStandardHelpOptions = true, versionProvider = PropertiesVersionProvider::class, description = ["UKEファイルを仮名化"])
+@Command(
+    name = "uke-pseudonymize",
+    mixinStandardHelpOptions = true,
+    versionProvider = PropertiesVersionProvider::class,
+    description = ["UKEファイルを仮名化"],
+)
 class App : Callable<Int> {
     @Parameters(index = "0", description = ["マスクするUKEファイル"])
     lateinit var input: File
