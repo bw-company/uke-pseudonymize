@@ -114,11 +114,12 @@ class MaskingEngineSpec : DescribeSpec({
                             // うるう年をテストするために2016年2月29日を含むケースを用いる
                             checkAll(Arb.localDate(LocalDate.of(2015, 4, 2), LocalDate.of(2016, 3, 31))) { birthDay ->
                                 // 6歳になる日から確認を開始
-                                var today = if (birthDay == LocalDate.of(2016, 2, 29)) {
-                                    birthDay.plusYears(6).plusDays(1)
-                                } else {
-                                    birthDay.plusYears(6)
-                                }
+                                var today =
+                                    if (birthDay == LocalDate.of(2016, 2, 29)) {
+                                        birthDay.plusYears(6).plusDays(1)
+                                    } else {
+                                        birthDay.plusYears(6)
+                                    }
                                 withClue("$birthDay に生まれた子供は $today から6歳になる") {
                                     computeAge(birthDay, today) shouldBe 6
                                 }

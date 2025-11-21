@@ -27,11 +27,12 @@ class MaskingEngine(seed: Int) {
                 4 -> {
                     val birthDay = LocalDate.parse(split[6], DateTimeFormatter.ofPattern("yyyyMMdd"))
                     val medicalTreatmentDay = split[3] // "yyyyMM"形式の診療年月
-                    val base = LocalDate.of(
-                        medicalTreatmentDay.substring(0..3).toInt(),
-                        medicalTreatmentDay.substring(4..5).toInt(),
-                        1,
-                    )
+                    val base =
+                        LocalDate.of(
+                            medicalTreatmentDay.substring(0..3).toInt(),
+                            medicalTreatmentDay.substring(4..5).toInt(),
+                            1,
+                        )
                     maskPatientName(it.value, base, birthDay)
                 }
 //                誕生日は７５歳に到達した日の確認が必要となるため、そのままの値で使用
@@ -47,10 +48,13 @@ class MaskingEngine(seed: Int) {
     /**
      * @return 月末の日付
      */
-    private fun LocalDate.atEndOfMonth(): LocalDate =
-        this.withDayOfMonth(this.month.length(this.isLeapYear))
+    private fun LocalDate.atEndOfMonth(): LocalDate = this.withDayOfMonth(this.month.length(this.isLeapYear))
 
-    fun maskPatientName(raw: String, medicalTreatmentDay: LocalDate, birthDay: LocalDate): String {
+    fun maskPatientName(
+        raw: String,
+        medicalTreatmentDay: LocalDate,
+        birthDay: LocalDate,
+    ): String {
         // 当月の1日時点での年齢を表示する
         val base = medicalTreatmentDay.withDayOfMonth(1)
         val age = computeAge(birthDay, base)
@@ -121,25 +125,34 @@ class MaskingEngine(seed: Int) {
             }
         }
 
-    fun maskName(prefix: String, name: String) = names.getOrPut(prefix) {
+    fun maskName(
+        prefix: String,
+        name: String,
+    ) = names.getOrPut(prefix) {
         HashMap()
     }.getOrPut(name) {
         // 長すぎると患者名が全角20文字を超えるため6桁に抑える
         "$prefix${random.nextInt(999_999)}"
     }
 
-    fun maskNumber(text: String, length: Int): String = numbers.getOrPut(length) {
-        HashMap()
-    }.getOrPut(text) {
-        (1..length).joinToString("") {
-            random.nextInt(10).toString()
+    fun maskNumber(
+        text: String,
+        length: Int,
+    ): String =
+        numbers.getOrPut(length) {
+            HashMap()
+        }.getOrPut(text) {
+            (1..length).joinToString("") {
+                random.nextInt(10).toString()
+            }
         }
-    }
 
     private fun maskTelNum(text: String) = "000-0000-0000"
 
     companion object {
-        fun computeAge(birthDay: LocalDate, today: LocalDate): Int =
-            Period.between(birthDay, today).years
+        fun computeAge(
+            birthDay: LocalDate,
+            today: LocalDate,
+        ): Int = Period.between(birthDay, today).years
     }
 }

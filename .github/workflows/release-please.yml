@@ -16,7 +16,7 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         with:
           release-type: java
           package-name: uke-pseudonymize
@@ -27,9 +27,9 @@ jobs:
       - release-please
     if: ${{ needs.release-please.outputs.release_created }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v5
       - run: ./gradlew build --no-daemon -Pversion="${{ steps.release.outputs.tag_name }}"
       - name: Upload distributions to GitHub Releases
         run: >
@@ -37,7 +37,7 @@ jobs:
           "${{ needs.release-please.outputs.tag_name }}"
           app/build/distributions/uke-pseudonymize.tar
           app/build/distributions/uke-pseudonymize.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: Gradle reports
