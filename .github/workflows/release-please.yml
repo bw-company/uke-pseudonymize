@@ -27,7 +27,7 @@ jobs:
       - release-please
     if: ${{ needs.release-please.outputs.release_created }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - run: ./gradlew build --no-daemon -Pversion="${{ steps.release.outputs.tag_name }}"
