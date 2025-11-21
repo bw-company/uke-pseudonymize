@@ -38,18 +38,21 @@ class App : Callable<Int> {
         val engine = MaskingEngine(seed)
 
         Files.newBufferedWriter(output, CHARSET).use { writer ->
-            Files.newBufferedReader(input.toPath(), CHARSET).lines().map {
-                when {
-                    it.startsWith("RE") -> engine.maskRe(it)
-                    it.startsWith("HO") -> engine.maskHo(it)
-                    it.startsWith("KO") -> engine.maskKo(it)
-                    it.startsWith("IR") -> engine.maskIr(it)
-                    else -> it
+            Files
+                .newBufferedReader(input.toPath(), CHARSET)
+                .lines()
+                .map {
+                    when {
+                        it.startsWith("RE") -> engine.maskRe(it)
+                        it.startsWith("HO") -> engine.maskHo(it)
+                        it.startsWith("KO") -> engine.maskKo(it)
+                        it.startsWith("IR") -> engine.maskIr(it)
+                        else -> it
+                    }
+                }.forEach {
+                    writer.write(it)
+                    writer.newLine()
                 }
-            }.forEach {
-                writer.write(it)
-                writer.newLine()
-            }
         }
         println("マスク処理を完了しました。")
         return 0
