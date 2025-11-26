@@ -21,8 +21,13 @@ UKEファイルを仮名加工情報に変換するツールです。
 
 ## 実行方法
 
-コマンドラインで `./gradlew jar` を実行すると `./app/build/libs/app.jar` が作成されます。
-その後 `java -jar ./app/build/libs/app.jar 入力するUKEファイルのパス 出力するUKEファイルのパス` とすると、仮名加工がされたUKEファイルが指定されたパスに生成されます。
+コマンドラインで `./gradlew run --args="入力するUKEファイルのパス 出力するUKEファイルのパス"` とすると、仮名加工がされたUKEファイルが指定されたパスに生成されます。
+パスは `./app` ディレクトリからの相対パスとして解釈されます。わからない場合はフルパスを指定することを推奨します。
+
+```shellsession
+// macOSでの実行例
+$ ./gradlew run --args="/Users/me/Downloads/SAMPLE.UKE /Users/me/Downloads/PSEUDONYMIZED.UKE"
+```
 
 ## 著作権表記
 
