@@ -19,6 +19,11 @@ UKEファイルを仮名加工情報に変換するツールです。
 フォーマットにはSpotlessを使っています。
 `spotlessApply` タスクを実行することでKotlinコードのフォーマットを行えます。
 
+## 実行方法
+
+コマンドラインで `./gradlew jar` を実行すると `./app/build/libs/app.jar` が作成されます。
+その後 `java -jar ./app/build/libs/app.jar 入力するUKEファイルのパス 出力するUKEファイルのパス` とすると、仮名加工がされたUKEファイルが指定されたパスに生成されます。
+
 ## 著作権表記
 
 Copyright &copy; 2022-2025 Henry, Inc.
