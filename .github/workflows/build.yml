@@ -11,12 +11,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - run: ./gradlew build --no-daemon
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: Gradle reports
           path: app/build/reports
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: github.event_name == 'push'
         with:
           name: Executables
