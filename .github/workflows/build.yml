@@ -23,6 +23,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew build --no-daemon
       - name: Upload inspequte SARIF
+        if: always() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && hashFiles('app/build/inspequte/main/report.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: app/build/inspequte/main/report.sarif
