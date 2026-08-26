@@ -3,14 +3,24 @@ on:
     branches: master
   pull_request: {}
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Install inspequte
+        uses: KengoTODA/setup-inspequte@8d212fa51a56245829f88e60f081c6549e312c57
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew build --no-daemon
+      - name: Upload inspequte SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: app/build/inspequte/main/report.sarif
       - uses: actions/upload-artifact@v7
         if: always()
         with:
