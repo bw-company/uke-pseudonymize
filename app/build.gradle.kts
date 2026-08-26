@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.inspequte)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.spotless)
     application
