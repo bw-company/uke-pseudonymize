@@ -8,6 +8,6 @@ kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest"
 picocli = { module = "info.picocli:picocli", version = "4.7.7" }
 
 [plugins]
-inspequte = { id = "io.github.kengotoda.inspequte", version = "0.6.1" }
+inspequte = { id = "io.github.kengotoda.inspequte", version = "0.6.2" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version = "2.4.10" }
 spotless = { id = "com.diffplug.spotless", version = "8.1.0" }
