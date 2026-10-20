@@ -3,46 +3,67 @@ on:
     branches:
       - master
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 name: release-please
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
         with:
           release-type: java
           package-name: uke-pseudonymize
           include-v-in-tag: false
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      # gh release upload でリリースに成果物を足す
+      contents: write
     needs:
       - release-please
     if: ${{ needs.release-please.outputs.release_created }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: temurin
           java-version: "21.0.12+101.0.LTS"
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-      - run: ./gradlew build --no-daemon -Pversion="${{ steps.release.outputs.tag_name }}"
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          # ほかの workflow が書いた cache を、リリースに載せる成果物に混ぜない
+          cache-disabled: true
+      - run: ./gradlew build --no-daemon -Pversion="${TAG_NAME}"
+        env:
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
       - name: Upload distributions to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
         run: >
           gh release upload
-          "${{ needs.release-please.outputs.tag_name }}"
+          "${TAG_NAME}"
           app/build/distributions/uke-pseudonymize.tar
           app/build/distributions/uke-pseudonymize.zip
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: Gradle reports

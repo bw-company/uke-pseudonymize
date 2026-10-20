@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jdx/jactionlint/v2.2.0/schema/jactionlint-config.json
+profile: default
+rules:
+  self-repository: info
+  template-injection:
+    pedantic: true
+  excessive-permissions:
+    require-workflow-permissions: true
