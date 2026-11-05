@@ -84,6 +84,29 @@ class MaskingEngine(
     }
 
     /**
+     * 労災用レセプト共通レコードをマスクする。[4]の労働者の氏名をマスクする。
+     * @see <a href="https://www.mhlw.go.jp/bunya/roudoukijun/rousaihoken06/03.html">労災レセプト電算処理システム 記録条件仕様（医科用）</a>
+     */
+    fun maskReRosai(line: String): String {
+        val split: List<String> = line.split(",")
+
+        return split.withIndex().joinToString(",") {
+            when (it.index) {
+                4 -> {
+                    if (split.size > 6 && split[6].isNotEmpty()) {
+                        val birthDay = LocalDate.parse(split[6], DateTimeFormatter.ofPattern("yyyyMMdd"))
+                        val today = LocalDate.now()
+                        maskPatientName(it.value, today, birthDay)
+                    } else {
+                        maskName("労働者", it.value)
+                    }
+                }
+                else -> it.value
+            }
+        }
+    }
+
+    /**
      * 保険者レコードをマスクする。[2]の被保険者証（手帳）等の記号、[3]の被保険者証（手帳）等の番号、
      * [9]の証明書番号をマスクする。
      * @see <a href="https://www.mhlw.go.jp/seisakunitsuite/bunya/kenkou_iryou/iryouhoken/reseputo/pdf/kirokusiyou_1.pdf">オンライン又は光ディスク等による請求に係る記録条件仕様（医科用）</a>
@@ -126,6 +149,70 @@ class MaskingEngine(
                 else -> it.value
             }
         }
+
+    /**
+     * 労災用医療機関情報レコードをマスクする。[4]の医療機関コード、[6]の医療機関名称、[9]の電話番号をマスクする。
+     * @see <a href="https://www.mhlw.go.jp/bunya/roudoukijun/rousaihoken06/03.html">労災レセプト電算処理システム 記録条件仕様（医科用）</a>
+     */
+    fun maskIrRosai(line: String): String =
+        line.split(",").withIndex().joinToString(",") {
+            when (it.index) {
+                4 -> maskNumber(it.value, 7)
+                6 -> maskName("医療機関", it.value)
+                9 -> maskTelNum(it.value)
+                else -> it.value
+            }
+        }
+
+    /**
+     * 労災レセプトレコードをマスクする。
+     * [5]の労働保険番号、[12]の労働者の氏名（カナ）、[13]の事業の名称、[14]の事業場の所在地をマスクする。
+     * @see <a href="https://www.mhlw.go.jp/bunya/roudoukijun/rousaihoken06/03.html">労災レセプト電算処理システム 記録条件仕様（医科用）</a>
+     */
+    fun maskRr(line: String): String =
+        line.split(",").withIndex().joinToString(",") {
+            when (it.index) {
+                5 -> maskNumber(it.value, 14)
+                12 -> maskName("労働者カナ", it.value)
+                13 -> maskName("事業", it.value)
+                14 -> maskAddress(it.value)
+                else -> it.value
+            }
+        }
+
+    /**
+     * 労災診療費請求書レコードをマスクする。
+     * [5]の指定病院等の番号、[7]の医療機関所在地、[8]の医療機関責任者氏名をマスクする。
+     * @see <a href="https://www.mhlw.go.jp/bunya/roudoukijun/rousaihoken06/03.html">労災レセプト電算処理システム 記録条件仕様（医科用）</a>
+     */
+    fun maskRs(line: String): String =
+        line.split(",").withIndex().joinToString(",") {
+            when (it.index) {
+                5 -> maskNumber(it.value, 7)
+                7 -> maskAddress(it.value)
+                8 -> maskName("責任者", it.value)
+                else -> it.value
+            }
+        }
+
+    /**
+     * コメントレコードをマスクする。
+     * コメントコード810000001の場合、[4]のコメント内容に医療機関名が含まれる可能性があるためマスクする。
+     */
+    fun maskCo(line: String): String {
+        val split = line.split(",")
+        if (split.size > 4 && split[3] == "810000001") {
+            return split.withIndex().joinToString(",") {
+                when (it.index) {
+                    4 -> maskName("医療機関", it.value)
+                    else -> it.value
+                }
+            }
+        }
+        return line
+    }
+
+    private fun maskAddress(text: String): String = if (text.isEmpty()) text else "○○県○○市○○町1-2-3"
 
     fun maskName(
         prefix: String,
